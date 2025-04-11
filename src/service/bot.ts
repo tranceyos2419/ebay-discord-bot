@@ -45,12 +45,12 @@ client.on('messageCreate', async (message) => {
     Appendix: record['Appendix'],
     'Order Detail URL': record['Order Detail URL'],
     'Est. Prfoit': record['Est. Prfoit'],
-    'Sanitized by': record['Sanitized by']?.trim(),
+    'In Charge Of': record['In Charge Of']?.trim(),
   }));
 
   // Group by sanitized and normalized channel name
   const grouped = rows.reduce<Record<string, ThreadData[]>>((acc, row) => {
-    const rawPerson = row['Sanitized by']?.trim();
+    const rawPerson = row['In Charge Of']?.trim();
     if (!rawPerson) return acc;
 
     const person = rawPerson.toLowerCase().replace(/[^a-z]/gi, '');
@@ -137,7 +137,7 @@ client.on('messageCreate', async (message) => {
           const content = chunk
             .map(
               (row) => `${researcherMention}\n Deadline: ${month}/${day}\n Order Number: ${row['Order Number']}\n eBay Item Id: ${row['eBay Item Id']}\n Product ID: ${row['product_id']}\n Category: ${row['Category']}\n Keyword: ${row['Keyword']}\n Identity: ${row['Identity']}\n JP Keyword: ${row['JP Keyword']}\n Appendix: ${row['Appendix']}\n Order Detail URL: ${row['Order Detail URL']}\n Est. Profit: ${row['Est. Prfoit']}`
- 
+
             )
             .join('\n');
 
@@ -159,5 +159,3 @@ function chunkArray<T>(arr: T[], size: number): T[][] {
 export const startBot = (): void => {
   client.login(config.DISCORD_TOKEN);
 };
-
-
