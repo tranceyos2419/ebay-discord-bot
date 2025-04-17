@@ -126,7 +126,7 @@ client.on('messageCreate', async (message) => {
       try {
         const thread = await channel.threads.create({
           name: threadTitle,
-          autoArchiveDuration: 1440, // 1 day
+          autoArchiveDuration: 10080, // 1 week
           reason: 'Auto-created from CSV upload by Assistant Bot',
         });
 
