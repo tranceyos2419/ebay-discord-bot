@@ -9,6 +9,7 @@ export interface ThreadData {
   'JP Keyword': string;
   Appendix: string;
   'Order Detail URL': string;
+  Country: string;
   'Est. Prfoit': string;
   'In Charge Of': string;
 }

@@ -44,6 +44,7 @@ client.on('messageCreate', async (message) => {
     'JP Keyword': record['JP Keyword'],
     Appendix: record['Appendix'],
     'Order Detail URL': record['Order Detail URL'],
+    Country: record['Country'],
     'Est. Prfoit': record['Est. Prfoit'],
     'In Charge Of': record['In Charge Of']?.trim(),
   }));
@@ -136,7 +137,7 @@ client.on('messageCreate', async (message) => {
         for (const chunk of chunkedEntries) {
           const content = chunk
             .map(
-              (row) => `${researcherMention}\n Deadline: ${month}/${day}\n Order Number: ${row['Order Number']}\n eBay Item Id: ${row['eBay Item Id']}\n Product ID: ${row['product_id']}\n Category: ${row['Category']}\n Keyword: ${row['Keyword']}\n Identity: ${row['Identity']}\n JP Keyword: ${row['JP Keyword']}\n Appendix: ${row['Appendix']}\n Order Detail URL: ${row['Order Detail URL']}\n Est. Profit: ${row['Est. Prfoit']}`
+              (row) => `${researcherMention}\n Deadline: ${month}/${day}\n Order Number: ${row['Order Number']}\n eBay Item Id: ${row['eBay Item Id']}\n Product ID: ${row['product_id']}\n Category: ${row['Category']}\n Keyword: ${row['Keyword']}\n Identity: ${row['Identity']}\n JP Keyword: ${row['JP Keyword']}\n Appendix: ${row['Appendix']}\n Order Detail URL: ${row['Order Detail URL']}\n Country: ${row['Country']}\n Est. Profit: ${row['Est. Prfoit']}`
 
             )
             .join('\n');
