@@ -1,2 +1,2 @@
 run:
-	ts-node src/index.ts
+	@pnpm run start
