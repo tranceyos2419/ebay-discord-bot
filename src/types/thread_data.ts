@@ -10,6 +10,7 @@ export interface ThreadData {
   Appendix: string;
   'Order Detail URL': string;
   Country: string;
+  'T.P.C.A.': string;
   'Est. Prfoit': string;
   'In Charge Of': string;
 }
