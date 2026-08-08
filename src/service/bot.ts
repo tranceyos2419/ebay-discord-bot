@@ -5,12 +5,18 @@ import {
   ChannelType,
 } from 'discord.js';
 import { config } from '../config/load-env';
+import { ASSIGNEE_USERNAMES } from '../constants/assignees';
 import { ThreadData } from '../types/thread_data';
 import { parse } from 'csv-parse/sync';
 
 const MAX_THREADS_PER_PERSON = 10;
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMembers,
+  ],
 });
 
 client.once('ready', () => {
@@ -20,7 +26,6 @@ client.once('ready', () => {
 client.on('messageCreate', async (message) => {
   if (!message.mentions.has(client.user!) || !message.attachments.size) return;
 
-  const uploader = message.author;
   const attachment = message.attachments.first();
   if (!attachment?.name?.endsWith('.csv')) return;
 
@@ -79,13 +84,31 @@ client.on('messageCreate', async (message) => {
     return;
   }
 
-  // 🔸 Get the @Researcher role and prepare the mention string
+  // Fallback @Researcher role when an assignee cannot be resolved
   const researcherRole = message.guild?.roles.cache.find(
     (role) => role.name === 'Researcher'
   );
   const researcherMention = researcherRole
     ? `<@&${researcherRole.id}>`
     : '@Researcher';
+
+  // Build Discord username → <@userId> lookup for assignee mentions
+  const mentionByUsername = new Map<string, string>();
+  try {
+    const members = await message.guild?.members.fetch();
+    members?.forEach((member) => {
+      mentionByUsername.set(member.user.username, `<@${member.user.id}>`);
+    });
+  } catch (error) {
+    console.error('Failed to fetch guild members for assignee mentions:', error);
+  }
+
+  const resolveAssigneeMention = (inChargeOf: string | undefined): string => {
+    if (!inChargeOf) return researcherMention;
+    const username = ASSIGNEE_USERNAMES[inChargeOf];
+    if (!username) return researcherMention;
+    return mentionByUsername.get(username) ?? researcherMention;
+  };
 
   for (const [channelName, entries] of Object.entries(grouped)) {
     console.log(` Looking for channel: ${channelName}`);
@@ -140,8 +163,10 @@ client.on('messageCreate', async (message) => {
         for (const chunk of chunkedEntries) {
           const content = chunk
             .map(
-              (row) => `${researcherMention}\n Deadline: ${month}/${day}\n Order Number: ${row['Order Number']}\n eBay Item Id: ${row['eBay Item Id']}\n Product ID: ${row['product_id']}\n Category: ${row['Category']}\n Keyword: ${row['Keyword']}\n Identity: ${row['Identity']}\n JP Keyword: ${row['JP Keyword']}\n Appendix: ${row['Appendix']}\n Est. Ship fee: ${row['Est. Ship fee']}\n Order Detail URL: ${row['Order Detail URL']}\n Country: ${row['Country']}\n T.P.C.A.: ${row['T.P.C.A.']}\n Est. Profit: ${row['Est. Prfoit']}\n Revenue ($): ${row['Revenue ($)']}`
-
+              (row) => {
+                const mention = resolveAssigneeMention(row['In Charge Of']);
+                return `${mention}\n Deadline: ${month}/${day}\n Order Number: ${row['Order Number']}\n eBay Item Id: ${row['eBay Item Id']}\n Product ID: ${row['product_id']}\n Category: ${row['Category']}\n Keyword: ${row['Keyword']}\n Identity: ${row['Identity']}\n JP Keyword: ${row['JP Keyword']}\n Appendix: ${row['Appendix']}\n Est. Ship fee: ${row['Est. Ship fee']}\n Order Detail URL: ${row['Order Detail URL']}\n Country: ${row['Country']}\n T.P.C.A.: ${row['T.P.C.A.']}\n Est. Profit: ${row['Est. Prfoit']}\n Revenue ($): ${row['Revenue ($)']}`;
+              }
             )
             .join('\n');
 

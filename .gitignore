@@ -27,3 +27,6 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# compiled emit (runtime uses tsx; keep sources as .ts only)
+*.js
